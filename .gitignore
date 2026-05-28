@@ -1,51 +1,10 @@
-node_modules
-# Keep environment variables out of version control
+node_modules/
 .env
 
-/generated/prisma
+/generated/prisma/
 
-/data
+arsa1-api/data/
+data/
 
-arsa1-api/data
-
-data
-data/postgres/base/16384/1259
-data/postgres/base/16384/1259
-data/postgres/base/16384/1259
-data/postgres/base/16384/2608
-data/postgres/base/16384/2609
-data/postgres/base/16384/2619
-data/postgres/base/16384/2696
-data/postgres/base/16384/16599
-data/postgres/base/16384/16605
-data/postgres/base/16384/16607
-data/postgres/base/16384/16615
-data/postgres/base/16384/16615_fsm
-data/postgres/base/16384/16624
-data/postgres/base/16384/16626
-data/postgres/base/16384/16633
-data/postgres/base/16384/16635
-data/postgres/base/16384/16640
-data/postgres/base/16384/16643
-data/postgres/global/pg_control
-data/postgres/pg_wal/000000010000000000000002
-data/postgres/pg_xact/0000
-data/postgres/base/16384/1259
-data/postgres/base/16384/2608
-data/postgres/base/16384/2609
-data/postgres/base/16384/2619
-data/postgres/base/16384/2696
-data/postgres/base/16384/16599
-data/postgres/base/16384/16605
-data/postgres/base/16384/16607
-data/postgres/base/16384/16615
-data/postgres/base/16384/16615_fsm
-data/postgres/base/16384/16624
-data/postgres/base/16384/16626
-data/postgres/base/16384/16633
-data/postgres/base/16384/16635
-data/postgres/base/16384/16640
-data/postgres/base/16384/16643
-data/postgres/global/pg_control
-data/postgres/pg_wal/000000010000000000000002
-data/postgres/pg_xact/0000
+*.pid
+*.wal
