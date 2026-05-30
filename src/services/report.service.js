@@ -42,6 +42,16 @@ class ReportService {
     // =========================
     const summarySheet = workbook.addWorksheet("Daily Summary");
 
+    summarySheet.mergeCells("A1:D1");
+    summarySheet.getCell("A1").value = "ARSA 1 DAILY SUMMARY";
+    summarySheet.getCell("A1").font = { bold: true, size: 14 };
+    summarySheet.getCell("A1").alignment = { horizontal: "center" };
+
+    summarySheet.mergeCells("A2:D2");
+    summarySheet.getCell("A2").value = `Date: ${fileDate}`;
+    summarySheet.getCell("A2").font = { bold: true };
+    summarySheet.getCell("A2").alignment = { horizontal: "center" };
+
     summarySheet.columns = [
       { header: "Product", key: "product", width: 30 },
       { header: "Quantity", key: "quantity", width: 15 },
@@ -49,7 +59,13 @@ class ReportService {
       { header: "Subtotal", key: "subtotal", width: 15 },
     ];
 
-    summarySheet.getRow(1).font = { bold: true };
+    summarySheet.getRow(3).values = [
+      "Product",
+      "Quantity",
+      "Price",
+      "Subtotal",
+    ];
+    summarySheet.getRow(3).font = { bold: true };
 
     const groupedProducts = {};
 
