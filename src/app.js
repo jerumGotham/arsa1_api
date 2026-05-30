@@ -12,6 +12,7 @@ const invoiceRoutes = require("./routes/invoice.routes");
 const { notFoundHandler } = require("./middlewares/notFound.middleware");
 const { errorHandler } = require("./middlewares/error.middleware");
 
+const { apiKeyMiddleware } = require("./middlewares/apiKey.middleware");
 const app = express();
 
 app.use(cors());
@@ -23,6 +24,9 @@ app.get("/", (req, res) => {
     message: "ARSA 1 API is running",
   });
 });
+
+// protect all API routes below
+app.use("/api", apiKeyMiddleware);
 
 app.use("/api/customers", customerRoutes);
 app.use("/api/products", productRoutes);

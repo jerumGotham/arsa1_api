@@ -70,7 +70,12 @@ class OrderService {
           throw new Error(`Insufficient stock for ${product.name}`);
         }
 
-        const price = Number(product.price);
+        const price = Number(item.price ?? product.price);
+
+        if (Number.isNaN(price) || price < 0) {
+          throw new Error(`Invalid price for ${product.name}`);
+        }
+
         const subtotal = price * quantity;
 
         totalAmount += subtotal;
