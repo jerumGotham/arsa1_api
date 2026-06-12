@@ -102,6 +102,18 @@ class ProductService {
       });
     });
   }
+
+  static async deleteProduct(id) {
+    return prisma.$transaction(async (tx) => {
+      await tx.inventory.deleteMany({
+        where: { productId: id },
+      });
+
+      return tx.product.delete({
+        where: { id },
+      });
+    });
+  }
 }
 
 module.exports = ProductService;
