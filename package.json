@@ -13,7 +13,8 @@
     "prisma:studio": "prisma studio",
     "seed": "node prisma/seed.js",
     "seed:admin": "node prisma/seed-admin.js",
-    "db:upgrade": "prisma db execute --file prisma/migrations/20261006000000_auth_and_categories/migration.sql --schema prisma/schema.prisma"
+    "db:upgrade": "prisma db execute --file prisma/migrations/20261006000000_auth_and_categories/migration.sql --schema prisma/schema.prisma",
+    "seed:users": "node prisma/seed-users.js"
   },
   "keywords": [],
   "author": "",

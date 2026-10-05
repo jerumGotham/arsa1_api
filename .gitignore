@@ -8,3 +8,5 @@ data/
 
 *.pid
 *.wal
+# local seed users (contains passwords)
+prisma/users.local.json
