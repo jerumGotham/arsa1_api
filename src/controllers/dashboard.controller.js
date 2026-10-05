@@ -2,7 +2,7 @@ const DashboardService = require("../services/dashboard.service");
 
 exports.getSummary = async (req, res, next) => {
   try {
-    const summary = await DashboardService.getSummary();
+    const summary = await DashboardService.getSummary(req.user);
 
     res.json({
       success: true,

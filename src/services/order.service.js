@@ -1,7 +1,9 @@
 const prisma = require("../prisma");
+const { HttpError } = require("../utils/httpError");
+const { orderScope, orderInclude } = require("../utils/scope");
 
 class OrderService {
-  static async createOrder(data) {
+  static async createOrder(data, user) {
     const {
       customerId,
       customerName,
@@ -105,27 +107,26 @@ class OrderService {
       return tx.order.create({
         data: {
           customerId: finalCustomerId,
+          agentId: user?.id || null,
           totalAmount,
           items: {
             create: orderItemsData,
           },
         },
-        include: {
-          customer: true,
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
+        include: orderInclude,
       });
     });
   }
 
-  static async getOrders(query) {
-    const { date, from, to } = query;
+  static async getOrders(query, user) {
+    const { date, from, to, agentId } = query;
 
-    const where = {};
+    const where = { ...orderScope(user) };
+
+    // admins can narrow the list to one agent
+    if (agentId && user?.role === "ADMIN") {
+      where.agentId = agentId;
+    }
 
     if (date) {
       const start = new Date(date);
@@ -155,35 +156,21 @@ class OrderService {
 
     return prisma.order.findMany({
       where,
-      include: {
-        customer: true,
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+      include: orderInclude,
       orderBy: {
         orderDate: "desc",
       },
     });
   }
 
-  static async getOrderById(id) {
-    const order = await prisma.order.findUnique({
-      where: { id },
-      include: {
-        customer: true,
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+  static async getOrderById(id, user) {
+    const order = await prisma.order.findFirst({
+      where: { id, ...orderScope(user) },
+      include: orderInclude,
     });
 
     if (!order) {
-      throw new Error("Order not found");
+      throw new HttpError(404, "Order not found");
     }
 
     return order;

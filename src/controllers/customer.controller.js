@@ -27,13 +27,25 @@ exports.getCustomers = async (req, res, next) => {
 };
 
 exports.getCustomerById = async (req, res, next) => {
-  console.log("Fetching customer with ID:", req.params.id); // Debug log
   try {
-    const customer = await CustomerService.getCustomerById(req.params.id);
+    const customer = await CustomerService.getCustomerById(req.params.id, req.user);
 
     res.json({
       success: true,
       data: customer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getCustomerPrices = async (req, res, next) => {
+  try {
+    const prices = await CustomerService.getCustomerPrices(req.params.id);
+
+    res.json({
+      success: true,
+      data: prices,
     });
   } catch (error) {
     next(error);
