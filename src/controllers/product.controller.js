@@ -15,7 +15,7 @@ exports.createProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await ProductService.getProducts(req.query.search);
+    const products = await ProductService.getProducts(req.query);
 
     res.json({
       success: true,

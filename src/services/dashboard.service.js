@@ -1,7 +1,8 @@
 const prisma = require("../prisma");
+const { orderScope } = require("../utils/scope");
 
 class DashboardService {
-  static async getSummary() {
+  static async getSummary(user) {
     const today = new Date();
 
     const start = new Date(today);
@@ -12,6 +13,7 @@ class DashboardService {
 
     const orders = await prisma.order.findMany({
       where: {
+        ...orderScope(user),
         orderDate: {
           gte: start,
           lte: end,
@@ -19,6 +21,7 @@ class DashboardService {
       },
       include: {
         items: true,
+        agent: { select: { id: true, name: true } },
       },
     });
 
@@ -35,11 +38,38 @@ class DashboardService {
       );
     }, 0);
 
-    return {
+    const summary = {
       totalSales,
       totalOrders,
       totalItemsSold,
     };
+
+    // Admins also get today's sales per agent.
+    if (user?.role === "ADMIN") {
+      const byAgent = {};
+
+      for (const order of orders) {
+        const key = order.agent?.id || "unassigned";
+
+        if (!byAgent[key]) {
+          byAgent[key] = {
+            agentId: order.agent?.id || null,
+            name: order.agent?.name || "Unassigned",
+            totalSales: 0,
+            totalOrders: 0,
+          };
+        }
+
+        byAgent[key].totalSales += Number(order.totalAmount);
+        byAgent[key].totalOrders += 1;
+      }
+
+      summary.byAgent = Object.values(byAgent).sort(
+        (a, b) => b.totalSales - a.totalSales,
+      );
+    }
+
+    return summary;
   }
 }
 

@@ -7,6 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  AGENT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  username     String   @unique
+  passwordHash String
+  role         Role     @default(AGENT)
+  active       Boolean  @default(true)
+  orders       Order[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Customer {
   id        String   @id @default(cuid())
   name      String
@@ -18,17 +35,28 @@ model Customer {
   updatedAt DateTime @updatedAt
 }
 
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Product {
   id          String      @id @default(cuid())
   name        String
   sku         String?     @unique
   price       Decimal
-  category    String?
+  categoryId  String?
+  category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   description String?
   inventory   Inventory?
   orderItems  OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
 }
 
 model Inventory {
@@ -48,11 +76,15 @@ model Order {
   id          String      @id @default(uuid())
   customerId  String
   customer    Customer    @relation(fields: [customerId], references: [id])
+  agentId     String?
+  agent       User?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
   totalAmount Decimal
   orderDate   DateTime    @default(now())
   items       OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  @@index([agentId])
 }
 
 model OrderItem {

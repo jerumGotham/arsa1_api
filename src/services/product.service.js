@@ -1,51 +1,64 @@
 const prisma = require("../prisma");
 
+const productInclude = {
+  inventory: true,
+  category: true,
+};
+
+// Only these fields may be written from the client.
+function pickProductData(data) {
+  const out = {};
+
+  if (data.name !== undefined) out.name = String(data.name).trim();
+  if (data.sku !== undefined) out.sku = data.sku ? String(data.sku).trim() : null;
+  if (data.price !== undefined) out.price = data.price;
+  if (data.description !== undefined) out.description = data.description;
+  if (data.categoryId !== undefined) out.categoryId = data.categoryId || null;
+
+  return out;
+}
+
 class ProductService {
   static async createProduct(data) {
-    const {
-      name,
-      sku,
-      price,
-      category,
-      description,
-      originalQuantity = 0,
-    } = data;
+    const { originalQuantity, remainingQuantity } = data;
+    const quantity = Number(originalQuantity ?? remainingQuantity ?? 0);
 
     return prisma.product.create({
       data: {
-        name,
-        sku,
-        price,
-        category,
-        description,
+        ...pickProductData(data),
         inventory: {
           create: {
-            originalQuantity: Number(originalQuantity),
+            originalQuantity: quantity,
             soldQuantity: 0,
-            remainingQuantity: Number(originalQuantity),
+            remainingQuantity: quantity,
           },
         },
       },
-      include: {
-        inventory: true,
-      },
+      include: productInclude,
     });
   }
 
-  static async getProducts(search) {
+  // categoryId: a category id, "none" for uncategorized, or empty for all
+  static async getProducts({ search, categoryId } = {}) {
+    const where = {};
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { sku: { contains: search, mode: "insensitive" } },
+        { category: { name: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    if (categoryId === "none") {
+      where.categoryId = null;
+    } else if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
     return prisma.product.findMany({
-      where: search
-        ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { sku: { contains: search, mode: "insensitive" } },
-              { category: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {},
-      include: {
-        inventory: true,
-      },
+      where,
+      include: productInclude,
       orderBy: {
         createdAt: "desc",
       },
@@ -55,19 +68,17 @@ class ProductService {
   static async getProductById(id) {
     return prisma.product.findUnique({
       where: { id },
-      include: {
-        inventory: true,
-      },
+      include: productInclude,
     });
   }
 
   static async updateProduct(id, data) {
-    const { originalQuantity, remainingQuantity, ...productData } = data;
+    const { remainingQuantity } = data;
 
     return prisma.$transaction(async (tx) => {
       const product = await tx.product.update({
         where: { id },
-        data: productData,
+        data: pickProductData(data),
         include: {
           inventory: true,
         },
@@ -96,9 +107,7 @@ class ProductService {
 
       return tx.product.findUnique({
         where: { id },
-        include: {
-          inventory: true,
-        },
+        include: productInclude,
       });
     });
   }

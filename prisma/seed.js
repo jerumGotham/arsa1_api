@@ -55,8 +55,7 @@ async function readProductsFromExcel(filePath) {
     products.push({
       name,
       price,
-      category: "General",
-      description: "Imported from ARSA 1 updated price list",
+      description: "Imported from TindaHub updated price list",
       originalQuantity: DEFAULT_STOCK,
     });
   });
@@ -108,7 +107,6 @@ async function seedProducts(products) {
           },
           data: {
             price: item.price,
-            category: existing.category || item.category,
             description: existing.description || item.description,
           },
         });
@@ -133,7 +131,6 @@ async function seedProducts(products) {
         data: {
           name: item.name,
           price: item.price,
-          category: item.category,
           description: item.description,
           inventory: {
             create: {

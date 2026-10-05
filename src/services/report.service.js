@@ -20,6 +20,7 @@ class ReportService {
       },
       include: {
         customer: true,
+        agent: { select: { name: true } },
         items: {
           include: {
             product: true,
@@ -32,7 +33,7 @@ class ReportService {
     });
 
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = "ARSA 1";
+    workbook.creator = "TindaHub";
     workbook.created = new Date();
 
     const fileDate = date.toISOString().split("T")[0];
@@ -43,7 +44,7 @@ class ReportService {
     const summarySheet = workbook.addWorksheet("Daily Summary");
 
     summarySheet.mergeCells("A1:D1");
-    summarySheet.getCell("A1").value = "ARSA 1 DAILY SUMMARY";
+    summarySheet.getCell("A1").value = "TINDAHUB DAILY SUMMARY";
     summarySheet.getCell("A1").font = { bold: true, size: 14 };
     summarySheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -158,6 +159,7 @@ class ReportService {
         { header: "Price", key: "price", width: 15 },
         { header: "Subtotal", key: "subtotal", width: 15 },
         { header: "Order Date", key: "orderDate", width: 25 },
+        { header: "Booked By", key: "agent", width: 20 },
       ];
 
       sheet.getRow(1).font = { bold: true };
@@ -180,6 +182,7 @@ class ReportService {
             price,
             subtotal,
             orderDate: order.orderDate,
+            agent: order.agent?.name || "",
           });
         });
       });
@@ -221,7 +224,7 @@ class ReportService {
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=arsa1-orders-${fileDate}.xlsx`,
+      `attachment; filename=tindahub-orders-${fileDate}.xlsx`,
     );
 
     await workbook.xlsx.write(res);

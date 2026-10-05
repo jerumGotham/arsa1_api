@@ -2,7 +2,7 @@ const OrderService = require("../services/order.service");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const order = await OrderService.createOrder(req.body);
+    const order = await OrderService.createOrder(req.body, req.user);
 
     res.status(201).json({
       success: true,
@@ -15,7 +15,7 @@ exports.createOrder = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const orders = await OrderService.getOrders(req.query);
+    const orders = await OrderService.getOrders(req.query, req.user);
 
     res.json({
       success: true,
@@ -28,7 +28,7 @@ exports.getOrders = async (req, res, next) => {
 
 exports.getOrderById = async (req, res, next) => {
   try {
-    const order = await OrderService.getOrderById(req.params.id);
+    const order = await OrderService.getOrderById(req.params.id, req.user);
 
     res.json({
       success: true,
